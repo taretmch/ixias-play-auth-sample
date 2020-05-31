@@ -9,7 +9,7 @@ import Post._
 case class Post(
   id:        Option[Id],
   title:     String,
-  body:      Option[String],
+  body:      String,
   public:    Boolean,
   updatedAt: LocalDateTime = NOW,
   createdAt: LocalDateTime = NOW
