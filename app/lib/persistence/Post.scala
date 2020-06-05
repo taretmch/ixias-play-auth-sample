@@ -7,7 +7,7 @@ import lib.model.Post
 
 // ToDoRepository: ToDoTaskテーブルへのクエリ発行を行うRepository層の定義
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-case class ToDoRepository[P <: JdbcProfile]()(implicit val driver: P)
+case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
   extends SlickRepository[Post.Id, Post, P]
   with db.SlickResourceProvider[P] {
 
