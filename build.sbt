@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 
 name := """ixias-play-auth-sample"""
-organization := "net.ixias-sample"
+organization := "sample.net.ixias"
 
 version := "1.0-SNAPSHOT"
 
@@ -20,4 +20,5 @@ libraryDependencies ++= Seq(
   "net.ixias" %% "ixias"      % "1.1.23",
   "net.ixias" %% "ixias-aws"  % "1.1.23",
   "net.ixias" %% "ixias-play" % "1.1.23",
+  "mysql" % "mysql-connector-java" % "5.1.+",
 )
