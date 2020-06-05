@@ -32,7 +32,7 @@ case class PostTable[P <:JdbcProfile]()(implicit val driver: P)
     /* @1 */ def id        = column[Post.Id]       ("id",          O.UInt64, O.PrimaryKey, O.AutoInc)
     /* @2 */ def title     = column[String]        ("title",       O.Utf8Char255)
     /* @3 */ def body      = column[String]        ("body",        O.Utf8Char255)
-    /* @4 */ def public    = column[Boolean]       ("state",       O.UInt8)
+    /* @4 */ def public    = column[Boolean]       ("public",      O.Boolean)
     /* @5 */ def updatedAt = column[LocalDateTime] ("updated_at",  O.TsCurrent)
     /* @6 */ def createdAt = column[LocalDateTime] ("created_at",  O.Ts)
 
