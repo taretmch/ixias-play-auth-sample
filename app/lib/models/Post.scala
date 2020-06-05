@@ -26,6 +26,7 @@ object Post {
   def apply(title: String, body: String, public: Boolean): WithNoId = {
     new Entity.WithNoId(
       new Post(
+        id     = None,
         title  = title,
         body   = body,
         public = public
