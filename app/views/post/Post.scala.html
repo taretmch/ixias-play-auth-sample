@@ -1,0 +1,9 @@
+@(vv: model.post.ViewValueGetPost)
+@main(vv.title) {
+<ul>
+  <li>id: @vv.post.id</li>
+  <li>title: @vv.post.title</li>
+  <li>body: @vv.post.body</li>
+  <li>public: @vv.post.public</li>
+</ul>
+}

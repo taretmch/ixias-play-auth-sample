@@ -14,6 +14,14 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
   import api._
 
   /**
+   * Get post dataset
+   */
+  def findAll(): Future[Seq[EntityEmbeddedId]] =
+    RunDBAction(PostTable, "slave") { _
+      .result
+    }
+
+  /**
     * Get post data
     */
   def get(id: Id): Future[Option[EntityEmbeddedId]] =

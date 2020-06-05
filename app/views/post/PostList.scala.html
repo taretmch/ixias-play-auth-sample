@@ -1,0 +1,8 @@
+@(vv: model.post.ViewValuePostList)
+@main(vv.title) {
+<ul>
+  @for(post <- vv.posts){
+  <li>@post.id, @post.title, @post.body, @post.public</li>
+  }
+</ul>
+}
