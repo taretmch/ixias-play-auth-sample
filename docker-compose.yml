@@ -1,0 +1,30 @@
+#
+# MySQL environment on docker
+#
+
+version: '3'
+
+services:
+  # サービス名
+  db:
+    # MySQL 5.7
+    image: mysql:5.7
+    # コンテナの名前
+    container_name: ixias-play-auth-sample-db
+    environment:
+      # root パスワード
+      MYSQL_ROOT_PASSWORD: root
+      # 使用するデータベース
+      MYSQL_DATABASE:      blog
+      # タイムゾーン
+      TZ: 'Asia/Tokyo'
+    # MySQL の起動コマンド
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # ファイルの対応定義
+    volumes:
+    - ./docker/db/data:/var/lib/mysql
+    - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
+    - ./docker/db/sql:/docker-entrypoint-initdb.d
+    # 3306 ポートを 33306 ポートに割り当てる
+    ports:
+      - 33306:3306
