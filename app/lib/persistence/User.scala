@@ -3,12 +3,12 @@ package lib.persistence
 import scala.concurrent.Future
 import ixias.persistence.SlickRepository
 import slick.jdbc.JdbcProfile
-import lib.model.Post
+import lib.model.User
 
-// PostRepository: Post テーブルへのクエリ発行を行う Repository 層の定義
+// UserRepository: Userテーブルへのクエリ発行を行う Repository 層の定義
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
-  extends SlickRepository[Post.Id, Post, P]
+case class UserRepository[P <: JdbcProfile]()(implicit val driver: P)
+  extends SlickRepository[User.Id, User, P]
   with db.SlickResourceProvider[P] {
 
   import api._
@@ -17,7 +17,7 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
    * Get post dataset
    */
   def findAll(): Future[Seq[EntityEmbeddedId]] =
-    RunDBAction(PostTable, "slave") { _
+    RunDBAction(UserTable, "slave") { _
       .result
     }
 
@@ -25,7 +25,7 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
     * Get post data
     */
   def get(id: Id): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(PostTable, "slave") { _
+    RunDBAction(UserTable, "slave") { _
       .filter(_.id === id)
       .result.headOption
     }
@@ -34,7 +34,7 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
     * Add post data
    */
   def add(entity: EntityWithNoId): Future[Id] =
-    RunDBAction(PostTable) { slick =>
+    RunDBAction(UserTable) { slick =>
       slick returning slick.map(_.id) += entity.v
     }
 
@@ -42,7 +42,7 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
    * Update post data
    */
   def update(entity: EntityEmbeddedId): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(PostTable) { slick =>
+    RunDBAction(UserTable) { slick =>
       val row = slick.filter(_.id === entity.id)
       for {
         old <- row.result.headOption
@@ -57,7 +57,7 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
    * Delete post data
    */
   def remove(id: Id): Future[Option[EntityEmbeddedId]] =
-    RunDBAction(PostTable) { slick =>
+    RunDBAction(UserTable) { slick =>
       val row = slick.filter(_.id === id)
       for {
         old <- row.result.headOption

@@ -1,7 +1,6 @@
 package lib.model
 
 import ixias.model._
-import ixias.util.EnumStatus
 import java.time.LocalDateTime
 
 // Post モデルの定義
@@ -17,8 +16,8 @@ case class Post(
 
 // コンパニオンオブジェクト
 object Post {
-  val  Id         = the[Identity[Id]]
-  type Id         = Long @@ Post
+  val  Id = the[Identity[Id]]
+  type Id = Long @@ Post
 
   def apply(title: String, body: String, public: Boolean): Post#WithNoId = {
     new Post(
