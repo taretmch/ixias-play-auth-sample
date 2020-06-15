@@ -14,15 +14,7 @@ case class UserRepository[P <: JdbcProfile]()(implicit val driver: P)
   import api._
 
   /**
-   * Get post dataset
-   */
-  def findAll(): Future[Seq[EntityEmbeddedId]] =
-    RunDBAction(UserTable, "slave") { _
-      .result
-    }
-
-  /**
-    * Get post data
+    * Get user data
     */
   def get(id: Id): Future[Option[EntityEmbeddedId]] =
     RunDBAction(UserTable, "slave") { _
@@ -31,7 +23,7 @@ case class UserRepository[P <: JdbcProfile]()(implicit val driver: P)
     }
 
   /**
-    * Add post data
+    * Add user data
    */
   def add(entity: EntityWithNoId): Future[Id] =
     RunDBAction(UserTable) { slick =>
@@ -39,7 +31,7 @@ case class UserRepository[P <: JdbcProfile]()(implicit val driver: P)
     }
 
   /**
-   * Update post data
+   * Update user data
    */
   def update(entity: EntityEmbeddedId): Future[Option[EntityEmbeddedId]] =
     RunDBAction(UserTable) { slick =>
@@ -54,7 +46,7 @@ case class UserRepository[P <: JdbcProfile]()(implicit val driver: P)
     }
 
   /**
-   * Delete post data
+   * Delete user data
    */
   def remove(id: Id): Future[Option[EntityEmbeddedId]] =
     RunDBAction(UserTable) { slick =>

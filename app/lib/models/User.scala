@@ -24,7 +24,7 @@ object User {
     new User(
       id    = None,
       name  = name,
-      email = email
+      email = email,
       hash  = hash(password)
     ).toWithNoId
   }
