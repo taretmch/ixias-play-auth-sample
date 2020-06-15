@@ -1,8 +1,9 @@
 @(vv: model.post.ViewValuePostList)
 @main(vv.title) {
+<h2>記事一覧</h2>
 <ul>
   @for(post <- vv.posts){
-  <li>@post.id, @post.title, @post.body, @post.public</li>
+  <li><a href="/post/@post.id">@post.id, @post.title</a></li>
   }
 </ul>
 }

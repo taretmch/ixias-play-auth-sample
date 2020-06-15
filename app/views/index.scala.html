@@ -1,5 +1,8 @@
 @()
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
+@main("Welcome to My Blog") {
+  <h1>Welcome to My Blog!</h1>
+  <ul>
+    <li><a href=@controllers.routes.PostController.index()>記事一覧へ</a></li>
+  </ul>
 }
