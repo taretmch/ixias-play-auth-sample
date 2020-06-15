@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 import Post._
 case class Post(
   id:        Option[Id], // 記事 Id
+  uid:       User.Id,    // ユーザー Id
   title:     String,     // 記事のタイトル
   body:      String,     // 記事の本文
   public:    Boolean,    // 公開しているか
@@ -19,9 +20,10 @@ object Post {
   val  Id = the[Identity[Id]]
   type Id = Long @@ Post
 
-  def apply(title: String, body: String, public: Boolean): Post#WithNoId = {
+  def apply(uid: User.Id, title: String, body: String, public: Boolean): Post#WithNoId = {
     new Post(
       id     = None,
+      uid    = uid,
       title  = title,
       body   = body,
       public = public

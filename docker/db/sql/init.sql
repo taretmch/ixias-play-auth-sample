@@ -16,6 +16,7 @@ INSERT INTO user (id, name, email, hash) VALUES (1, 'root', 'root@example.com', 
 # POST テーブルの作成
 CREATE TABLE if not exists `post` (
   `id`         BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`    BIGINT(20) UNSIGNED NOT NULL,
   `title`      VARCHAR(255)        NOT NULL,
   `body`       TEXT,
   `public`     BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -27,7 +28,7 @@ CREATE TABLE if not exists `post` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 # サンプルデータの挿入
-INSERT INTO post (id, title, body, public) VALUES (1, "IxiaS を用いたユーザー認証機能の実装", "ユーザー認証の実装頑張ります", FALSE);
-INSERT INTO post (id, title, body, public) VALUES (2, "エンティティーモデルについて", "エンティティーモデルとは云々", FALSE);
-INSERT INTO post (id, title, body, public) VALUES (3, "Slick を用いたデータベースアクセスについて", "Slick は難しい。", FALSE);
+INSERT INTO post (id, user_id, title, body, public) VALUES (1, 1, "IxiaS を用いたユーザー認証機能の実装", "ユーザー認証の実装頑張ります", FALSE);
+INSERT INTO post (id, user_id, title, body, public) VALUES (2, 1, "エンティティーモデルについて", "エンティティーモデルとは云々", FALSE);
+INSERT INTO post (id, user_id, title, body, public) VALUES (3, 1, "Slick を用いたデータベースアクセスについて", "Slick は難しい。", FALSE);
 
