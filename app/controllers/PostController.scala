@@ -2,7 +2,8 @@ package controllers
 
 import lib.model.Post
 import lib.persistence.default.PostRepository
-import model.post._
+import model.component.post.ViewValuePost
+import model.site.post._
 
 import play.api.mvc._
 import play.api.i18n.I18nSupport

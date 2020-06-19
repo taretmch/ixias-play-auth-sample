@@ -1,4 +1,4 @@
-package model.post
+package model.component.post
 
 import lib.model.Post
 

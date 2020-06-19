@@ -1,4 +1,6 @@
-package model.post
+package model.site.post
+
+import model.component.post.ViewValuePost
 
 case class ViewValueGetPost(
   title: String = "ブログ記事",
