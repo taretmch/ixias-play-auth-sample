@@ -25,6 +25,18 @@ CREATE TABLE IF NOT EXISTS `user_password` (
 # サンプルデータの挿入
 INSERT INTO user_password (user_id, hash) VALUES (1, '$pbkdf2-sha512$790$zX46CGqdQgw4eQCy..YSy6YVEGWHUQdY41yZQmCejpY$TFnP2AqR1moc02vmiYwLIz0c5NNbhxL1fc5sKbv8ePI');
 
+# AUTH_TOKEN テーブルの作成
+
+CREATE TABLE `auth_token` (
+  `id`            BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`       BIGINT(20) UNSIGNED NOT NULL,
+  `token`         VARCHAR(255)        NOT NULL,
+  `expiry`        VARCHAR(255)        NOT NULL,
+  `updated_at`    TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at`    TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 # POST テーブルの作成
 CREATE TABLE if not exists `post` (
   `id`         BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
