@@ -4,10 +4,10 @@ import model.component.auth._
 import play.api.data.Form
 import play.api.mvc.Call
 
-case class ViewValueLoginForm(
+case class ViewValueLogin(
   title:  String              = "ログイン",
-//  action: Call                = controllers.routes.UserController.login(),
+  action: Call                = controllers.routes.UserController.login(),
   submit: String              = "ログイン",
-  form:   Form[LoginFormData] = LoginForm.form
+  form:   Form[LoginFormData]
 )
 

@@ -17,10 +17,6 @@ object LoginForm {
     "email"    -> "",
     "password" -> ""
   )
-
-  val form = Form(
-    dataMapping
-  )
   
   // Form.data: Map[String, String] => LoginFormData
   def createFormDataFromMap(data: Map[String, String]): LoginFormData =

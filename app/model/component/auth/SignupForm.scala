@@ -29,10 +29,6 @@ object SignupForm {
       "password" -> text.verifying(passwordConstraint)
     )(SignupFormData.apply)(SignupFormData.unapply)
 
-  val form = Form(
-    mappingData
-  )
-
   // Form.data: Map[String, String] => SignupFormData
   def createFormDataFromMap(data: Map[String, String]): SignupFormData =
     SignupFormData(
