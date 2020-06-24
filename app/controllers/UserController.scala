@@ -4,6 +4,7 @@ import lib.model.{ User, UserPassword }
 import lib.persistence.default.{ UserRepository, UserPasswordRepository }
 import model.component.auth._
 import model.component.auth.FormErrors._
+import model.site.auth._
 
 import mvc.auth.UserAuthProfile
 
@@ -28,7 +29,7 @@ class UserController @Inject()(
     val userOpt = authProfile.loggedIn
     userOpt match {
       case Some(user) => Redirect(routes.HomeController.index())
-      case None       => Ok(views.html.auth.Signup(new ViewValueSignupForm))
+      case None       => Ok(views.html.auth.Signup(new ViewValueSignup(form = signupForm)))
     }
   }
 
@@ -37,7 +38,7 @@ class UserController @Inject()(
     val userOpt = authProfile.loggedIn
     userOpt match {
       case Some(user) => Redirect(routes.HomeController.index())
-      case None       => Ok(views.html.auth.Login(new ViewValueSignupForm))
+      case None       => Ok(views.html.auth.Login(new ViewValueLogin(form = loginForm)))
     }
   }
 
@@ -46,18 +47,18 @@ class UserController @Inject()(
     signupForm.bindFromRequest.fold(
       // フォームエラー
       formWithErrors => {
-        val vv = ViewValueSignupForm(form = formWithErrors)
-        Future.successful(BadRequest(views.html.user.Signup(vv)))
+        val vv = ViewValueSignup(form = formWithErrors)
+        Future.successful(BadRequest(views.html.auth.Signup(vv)))
       },
       userData => {
         val hash = UserPassword.hash(userData.password)
-        val newUser = User(userData.name, userData.email)
+        val user = User(userData.name, userData.email)
         (for {
           // email がユニークかどうか
-          emailOpt <- UserRepository.getByEmail(user.email)
+          emailOpt <- UserRepository.getByEmail(user.v.email)
         } yield emailOpt) flatMap {
           case Some(email) => Future.successful(BadRequest(views.html.auth.Signup(
-            new ViewValueSignupForm(form = signupForm)
+            new ViewValueSignup(form = signupForm)
           )))
           case None        => for {
             // email がユニークなら、ユーザー登録する
@@ -79,7 +80,7 @@ class UserController @Inject()(
   def login() = Action.async { implicit req =>
     loginForm.bindFromRequest.fold(
       formWithErrors => {
-        val vv = ViewValueLoginForm(form = formWithErrors)
+        val vv = ViewValueLogin(form = formWithErrors)
         Future.successful(BadRequest(views.html.auth.Login(vv)))
       },
       loginUser => {
@@ -87,22 +88,26 @@ class UserController @Inject()(
           // email からユーザー取得
           userOpt <- UserRepository.getByEmail(loginUser.email)
         } yield userOpt) flatMap {
+          case None       => Future.successful(Left(BadRequest(views.html.auth.Login(
+            ViewValueLogin(form = loginForm.withError(errorUserNotFound))
+          ))))
           case Some(user) => for {
-            pass <- UserPasswordRepository.get(user.id)
-            // パスワードをチェックする
-            verified <- Future.successful(UserPassword.verify(loginUser.password, pass.v.hash))
-          } yield verified
-          case None       => Future.successful(BadRequest(views.html.auth.Login(
-            ViewValueLoginForm(form = loginForm.withError(errorEmailDuplicated))
-          )))
+            passOpt  <- UserPasswordRepository.get(user.id)
+            verified <- passOpt match {
+              case Some(pass) => Future.successful(UserPassword.verify(loginUser.password, pass.v.hash))
+              case None       => Future.successful(false)
+            }
+          } yield verified match {
+            case true  => Right(user)
+            case false => Left(BadRequest(views.html.auth.Login(
+              ViewValueLogin(form = loginForm.withError(errorPasswordInvalid))
+            )))
+          }
         } flatMap {
-          case true   => authProfile.loginSucceeded(user.id, { token =>
+          case Left(result) => Future.successful(result)
+          case Right(user)  => authProfile.loginSucceeded(user.id, { token =>
             Redirect(routes.HomeController.index())
           })
-          case false  => Future.successful(BadRequest(views.html.auth.Login(
-            ViewValueLoginForm(form = loginForm.withError(errorPasswordInvalid))
-          )))
-          case result => result
         }
       }
     )
@@ -112,8 +117,6 @@ class UserController @Inject()(
   def logout() = Authenticated(authProfile).async { implicit req =>
     authProfile.loggedIn { user =>
       authProfile.logoutSucceeded(user.id, {
-        val vv = ViewValueHome()
-        vv.authenticate(false)
         Redirect(routes.HomeController.index())
       })
     }

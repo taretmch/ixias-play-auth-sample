@@ -1,4 +1,4 @@
-package auth
+package mvc.auth
 
 import lib.model.User
 import lib.model.AuthToken

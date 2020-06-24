@@ -23,6 +23,15 @@ case class UserRepository[P <: JdbcProfile]()(implicit val driver: P)
     }
 
   /**
+   * Get user data by email
+   */
+  def getByEmail(email: String): Future[Option[EntityEmbeddedId]] =
+    RunDBAction(UserTable, "slave") { _
+      .filter(_.email === email)
+      .result.headOption
+    }
+
+  /**
     * Add user data
    */
   def add(entity: EntityWithNoId): Future[Id] =

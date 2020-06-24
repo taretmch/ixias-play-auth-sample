@@ -22,7 +22,7 @@ object SignupForm {
       }
     })
 
-  val mappingData = 
+  val dataMapping = 
     mapping(
       "name"     -> nonEmptyText,
       "email"    -> email,

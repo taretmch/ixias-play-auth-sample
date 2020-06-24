@@ -1,0 +1,34 @@
+@*
+ * ログイン用フォーム画面
+ *@
+
+@(vv: model.site.auth.ViewValueLogin)(implicit messages: Messages, requestHeader: RequestHeader)
+@main(vv.title){
+  <div class="form">
+    @helper.form(vv.action) {
+      @helper.CSRF.formField
+      <div class="form__field">
+        @helper.inputText(vv.form("email"),
+          '_label      -> "メールアドレス",
+          'placeholder -> "mail@example.com",
+          'class       -> "text-box"
+        )
+      </div>
+      <div class="form__field">
+        @helper.inputPassword(vv.form("password"),
+          '_label      -> "パスワード",
+          'placeholder -> "password",
+          'class       -> "text-box"
+        )
+      </div>
+      <div class="form__submit">
+        <input class="button" type="submit" value=@vv.submit>
+      </div>
+      <div class="form__note">
+        アカウントを持っていませんか？
+        <a href="@routes.UserController.showSignupForm">アカウント登録</a>
+      </div>
+    }
+  </div>
+}
+

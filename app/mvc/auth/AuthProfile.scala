@@ -1,4 +1,4 @@
-package auth
+package mvc.auth
 
 import lib.model.User
 import lib.persistence.default.UserRepository
@@ -16,7 +16,7 @@ import ixias.play.api.auth.token.TokenViaSession
 import ixias.play.api.auth.container.Container
 import ixias.play.api.mvc.Errors._
 
-case class AuthProfile @Inject() (
+case class UserAuthProfile @Inject() (
   val container: AuthTokenContainer
 )(implicit ec: ExecutionContext) extends ixias.play.api.auth.mvc.AuthProfile[User.Id, User, Unit] {
 

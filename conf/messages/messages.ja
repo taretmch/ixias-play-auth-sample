@@ -1,0 +1,10 @@
+# https://www.playframework.com/documentation/latest/ScalaI18N
+error.invalid=入力が不正です
+error.required=入力は必須です
+error.minLength={0}文字以上で入力してください
+error.maxLength={0}文字以内で入力してください
+error.email=メールアドレスを入力してください
+
+constraint.required=*
+constraint.maxLength=最大{0}文字まで
+
