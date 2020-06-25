@@ -12,8 +12,5 @@ object FormErrors {
 
   // Password Invalid Error
   val errorPasswordInvalid = FormError("password", "パスワードが間違っています")
-
-  // Slug Duplicated Error
-  val errorSlugDuplicated  = FormError("slug", "この名前はすでに登録されています")
 }
 

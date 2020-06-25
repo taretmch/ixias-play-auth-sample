@@ -1,5 +1,7 @@
 package lib.model
 
+import model.component.auth.FormErrors
+import play.api.data.FormError
 import ixias.model._
 import ixias.security.PBKDF2
 import java.time.LocalDateTime
@@ -26,5 +28,9 @@ object UserPassword {
   def hash(password: String): String = PBKDF2.hash(password)
 
   // パスワードをチェックする
-  def verify(input: String, hash: String): Boolean = PBKDF2.compare(input, hash)
+  def verify(input: String, hash: String): Either[FormError, Boolean] =
+    PBKDF2.compare(input, hash) match {
+      case true  => Right(true)
+      case false => Left(FormErrors.errorPasswordInvalid)
+    }
 }
