@@ -1,10 +1,17 @@
-@()
+@(vv: model.site.ViewValueHome)
 
-@main("Welcome to My Blog") {
-  <h1>Welcome to My Blog!</h1>
+@main("vv.title") {
+  <h1>Welcome @vv.userName to My Blog!</h1>
   <ul>
+    @vv.user match {
+    case Some(user) => {
     <li><a href=@controllers.routes.PostController.index()>記事一覧へ</a></li>
+    <li><a href=@controllers.routes.UserController.logout()>ログアウト</a></li>
+    }
+    case None       => {
     <li><a href=@controllers.routes.UserController.showSignupForm()>サインアップ</a></li>
     <li><a href=@controllers.routes.UserController.showLoginForm()>ログイン</a></li>
+    }
+    }
   </ul>
 }
