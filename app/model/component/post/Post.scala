@@ -11,12 +11,13 @@ case class ViewValuePost(
 )
 
 object ViewValuePost {
-  def apply(post: Post#EmbeddedId): ViewValuePost =
-    new ViewValuePost(
-      id     = post.id,
-      uid    = post.v.uid,
-      title  = post.v.title,
-      body   = post.v.body,
-      public = post.v.public
+
+  def from(data: Post#EmbeddedId): ViewValuePost =
+    ViewValuePost(
+      id     = data.id,
+      uid    = data.v.uid,
+      title  = data.v.title,
+      body   = data.v.body,
+      public = data.v.public
     )
 }
