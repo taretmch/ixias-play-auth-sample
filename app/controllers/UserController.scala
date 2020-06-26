@@ -57,7 +57,7 @@ class UserController @Inject()(
         } yield emailOpt) flatMap {
           // email が登録済なら、フォームを再表示する
           case Some(email) => Future.successful(BadRequest(views.html.auth.Signup(
-            new ViewValueSignup(form = signupForm.withError(errorEmailDuplicated))
+            new ViewValueSignup(form = signupForm.withError(errorEmailDuplicated).fill(userData))
           )))
           case None        => for {
             // email がユニークなら、ユーザー登録する
@@ -81,20 +81,20 @@ class UserController @Inject()(
         val vv = ViewValueLogin(form = formWithErrors)
         Future.successful(BadRequest(views.html.auth.Login(vv)))
       },
-      loginUser => {
+      userData => {
         val either: EitherT[Future, FormError, Result] = for {
           // email からユーザーを取得する
-          user     <- EitherT(UserRepository.getByEmail(loginUser.email).map(_.toRight(errorUserNotFound)))
+          user     <- EitherT(UserRepository.getByEmail(userData.email).map(_.toRight(errorUserNotFound)))
           pass     <- EitherT(UserPasswordRepository.get(user.id).map(_.toRight(errorPasswordInvalid)))
           // パスワードをチェックする
-          verified <- EitherT(Future.successful(UserPassword.verify(loginUser.password, pass.v.hash)))
+          verified <- EitherT(Future.successful(UserPassword.verify(userData.password, pass.v.hash)))
           // ログイン情報を付与して Home 画面を表示する
           result   <- EitherT.right(authProfile.loginSucceeded(user.id, { token =>
             Redirect(routes.HomeController.index())
           }).map(Right(_)))
         } yield result
         either.leftMap(e => BadRequest(views.html.auth.Login(
-          ViewValueLogin(form = loginForm.withError(e))
+          ViewValueLogin(form = loginForm.withError(e).fill(userData))
         ))).value
       }
     )
