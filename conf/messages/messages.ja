@@ -5,6 +5,6 @@ error.minLength={0}文字以上で入力してください
 error.maxLength={0}文字以内で入力してください
 error.email=メールアドレスを入力してください
 
-constraint.required=*
+constraint.required=(必須)
 constraint.maxLength=最大{0}文字まで
 
