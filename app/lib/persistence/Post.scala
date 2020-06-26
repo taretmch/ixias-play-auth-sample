@@ -3,7 +3,7 @@ package lib.persistence
 import scala.concurrent.Future
 import ixias.persistence.SlickRepository
 import slick.jdbc.JdbcProfile
-import lib.model.Post
+import lib.model.{ Post, User }
 
 // PostRepository: Post テーブルへのクエリ発行を行う Repository 層の定義
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -14,10 +14,11 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
   import api._
 
   /**
-   * Get post dataset
+   * Get post dataset by user id
    */
-  def findAll(): Future[Seq[EntityEmbeddedId]] =
+  def findAllByUser(uid: User.Id): Future[Seq[EntityEmbeddedId]] =
     RunDBAction(PostTable, "slave") { _
+      .filter(_.uid === uid)
       .result
     }
 
@@ -27,6 +28,16 @@ case class PostRepository[P <: JdbcProfile]()(implicit val driver: P)
   def get(id: Id): Future[Option[EntityEmbeddedId]] =
     RunDBAction(PostTable, "slave") { _
       .filter(_.id === id)
+      .result.headOption
+    }
+
+  /**
+   * Get post data by user id
+   */
+  def getByUserId(id: Id, uid: User.Id): Future[Option[EntityEmbeddedId]] =
+    RunDBAction(PostTable, "slave") { _
+      .filter(_.id === id)
+      .filter(_.uid === uid)
       .result.headOption
     }
 
