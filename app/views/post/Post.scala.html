@@ -1,16 +1,15 @@
 @(vv: model.site.post.ViewValueGetPost)
 @main(vv.title) {
-<h2>下記ユーザーでログインしています。</h2>
-<p>@vv.user</p>
+  @views.html.auth.UserInfo(vv.user)
 
-<h2>ブログ記事</h2>
-<ul>
-  <li>id: @vv.post.id</li>
-  <li>user: @vv.post.uid</li>
-  <li>title: @vv.post.title</li>
-  <li>body: @vv.post.body</li>
-  <li>public: @vv.post.public</li>
-</ul>
-<a href=@controllers.routes.PostController.index()>記事一覧へ戻る</a>
-<p><a href=@controllers.routes.HomeController.index()>ホームへ戻る</a></p>
+  <h2>ブログ記事</h2>
+  <ul>
+    <li>id: @vv.post.id</li>
+    <li>user: @vv.post.uid</li>
+    <li>title: @vv.post.title</li>
+    <li>body: @vv.post.body</li>
+    <li>public: @vv.post.public</li>
+  </ul>
+  <a href=@controllers.routes.PostController.index()>記事一覧へ戻る</a>
+  <p><a href=@controllers.routes.HomeController.index()>ホームへ戻る</a></p>
 }

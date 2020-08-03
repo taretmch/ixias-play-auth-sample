@@ -1,7 +1,6 @@
 @(vv: model.site.post.ViewValuePostList)
 @main(vv.title) {
-  <h2>下記ユーザーでログインしています。</h2>
-  <p>@vv.user</p>
+  @views.html.auth.UserInfo(vv.user)
 
   <h2>記事一覧</h2>
   <ul>
