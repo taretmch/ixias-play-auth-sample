@@ -28,9 +28,9 @@ object UserPassword {
   def hash(password: String): String = PBKDF2.hash(password)
 
   // パスワードをチェックする
-  def verify(input: String, hash: String): Either[FormError, Boolean] =
+  def verify(input: String, hash: String): Option[Unit] =
     PBKDF2.compare(input, hash) match {
-      case true  => Right(true)
-      case false => Left(FormErrors.errorPasswordInvalid)
+      case true  => Some(())
+      case false => None
     }
 }

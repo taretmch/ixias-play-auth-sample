@@ -13,15 +13,20 @@ import play.api.data._
 import play.api.i18n.I18nSupport
 import scala.concurrent._
 
-import cats.data.EitherT
+import cats.data.{ EitherT, OptionT }
 import cats.implicits._
 import ixias.play.api.auth.mvc.AuthExtensionMethods
+import ixias.play.api.mvc.BaseExtensionMethods
 
 @Singleton
 class UserController @Inject()(
   val controllerComponents: ControllerComponents,
   val authProfile:          UserAuthProfile,
-) (implicit ec: ExecutionContext) extends AuthExtensionMethods with  BaseController with I18nSupport {
+) (implicit ec: ExecutionContext) extends AuthExtensionMethods
+  with BaseExtensionMethods
+  with BaseController
+  with I18nSupport
+{
 
   val signupForm = Form(SignupForm.dataMapping)
   val loginForm  = Form(LoginForm .dataMapping)
@@ -52,9 +57,7 @@ class UserController @Inject()(
       userData => {
         val hash = UserPassword.hash(userData.password)
         val user = User(userData.name, userData.email)
-        (for {
-          emailOpt <- UserRepository.getByEmail(user.v.email)
-        } yield emailOpt) flatMap {
+        UserRepository.getByEmail(user.v.email) flatMap {
           // email が登録済なら、フォームを再表示する
           case Some(email) => Future.successful(BadRequest(views.html.auth.Signup(
             new ViewValueSignup(form = signupForm.withError(errorEmailDuplicated).fill(userData))
@@ -82,20 +85,24 @@ class UserController @Inject()(
         Future.successful(BadRequest(views.html.auth.Login(vv)))
       },
       userData => {
-        val either: EitherT[Future, FormError, Result] = for {
-          // email からユーザーを取得する
-          user     <- EitherT(UserRepository.getByEmail(userData.email).map(_.toRight(errorUserNotFound)))
-          pass     <- EitherT(UserPasswordRepository.get(user.id).map(_.toRight(errorPasswordInvalid)))
-          // パスワードをチェックする
-          verified <- EitherT(Future.successful(UserPassword.verify(userData.password, pass.v.hash)))
-          // ログイン情報を付与して Home 画面を表示する
-          result   <- EitherT.right(authProfile.loginSucceeded(user.id, { token =>
-            Redirect(routes.HomeController.index())
-          }).map(Right(_)))
-        } yield result
-        either.leftMap(e => BadRequest(views.html.auth.Login(
-          ViewValueLogin(form = loginForm.withError(e).fill(userData))
-        ))).value
+        (OptionT(UserRepository.getByEmail(userData.email)) flatMapF {
+          case user => for {
+            passOpt <- UserPasswordRepository.get(user.id)
+          } yield passOpt.map((user, _))
+        } semiflatMap {
+          case (user, pass) => for {
+            verified <- Future.successful(UserPassword.verify(userData.password, pass.v.hash))
+          } yield user.id
+        } semiflatMap {
+          case uid =>
+            authProfile.loginSucceeded(uid, { token =>
+              Redirect(routes.HomeController.index())
+            })
+        }).toRight(
+          BadRequest(views.html.auth.Login(ViewValueLogin(
+            form = loginForm.withError(errorLoginEmail).withError(errorLoginPassword).fill(userData)
+          )))
+        ).value
       }
     )
   }

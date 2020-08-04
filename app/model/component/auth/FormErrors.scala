@@ -7,10 +7,8 @@ object FormErrors {
   // Email Duplicated Error
   val errorEmailDuplicated = FormError("email", "このメールアドレスはすでに登録されています")
 
-  // User Not Found Error
-  val errorUserNotFound    = FormError("email", "メールアドレスが間違っています")
-
-  // Password Invalid Error
-  val errorPasswordInvalid = FormError("password", "パスワードが間違っています")
+  // Login Error
+  val errorLoginEmail      = FormError("email",    "メールアドレスまたはパスワードが間違っています")
+  val errorLoginPassword   = FormError("password", "メールアドレスまたはパスワードが間違っています")
 }
 
