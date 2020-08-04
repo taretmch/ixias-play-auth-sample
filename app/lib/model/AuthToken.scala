@@ -18,8 +18,8 @@ case class AuthToken(
 
 // Companion Object
 object AuthToken {
-  val  Id         = the[Identity[Id]]
-  type Id         = Long @@ AuthToken
+  val  Id = the[Identity[Id]]
+  type Id = Long @@ AuthToken
 
   def apply(uid: User.Id, token: AuthenticityToken, expiry: Duration): AuthToken#WithNoId =
     new AuthToken(
