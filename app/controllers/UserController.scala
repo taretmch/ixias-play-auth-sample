@@ -62,13 +62,13 @@ class UserController @Inject()(
           case Some(email) => Future.successful(BadRequest(views.html.auth.Signup(
             new ViewValueSignup(form = signupForm.withError(errorEmailDuplicated).fill(userData))
           )))
+          // email が未登録なら、登録処理を実行する
           case None        => for {
-            // email がユニークなら、ユーザー登録する
+            // 1. ユーザーを DB に保存する
             uid1   <- UserRepository.add(user)
-            // パスワードを登録する
+            // 2. ユーザーパスワードを DB に保存する
             uid2   <- UserPasswordRepository.add(UserPassword(uid1, hash))
-            // アカウント登録が成功した場合、セッション情報を付与し
-            // ホーム画面へ遷移する
+            // 3. トークンを Cookie に付与してホーム画面へリダイレクトする
             result <- authProfile.loginSucceeded(uid1, { token =>
               Redirect(routes.HomeController.index())
             })
@@ -85,15 +85,18 @@ class UserController @Inject()(
         Future.successful(BadRequest(views.html.auth.Login(vv)))
       },
       userData => {
+        // 1. ユーザーが存在するかどうかを取得する
         (OptionT(UserRepository.getByEmail(userData.email)) flatMapF {
           case user => for {
             passOpt <- UserPasswordRepository.get(user.id)
           } yield passOpt.map((user, _))
         } semiflatMap {
+        // 2. パスワードを検証する
           case (user, pass) => for {
             verified <- Future.successful(UserPassword.verify(userData.password, pass.v.hash))
           } yield user.id
         } semiflatMap {
+        // 3. トークンを Cookie に付与してホーム画面へリダイレクトする
           case uid =>
             authProfile.loginSucceeded(uid, { token =>
               Redirect(routes.HomeController.index())
