@@ -1,7 +1,6 @@
 package mvc.auth
 
-import lib.model.User
-import lib.model.AuthToken
+import lib.model.{ User, AuthToken }
 import lib.persistence.default.AuthTokenRepository
 
 import javax.inject._
@@ -14,6 +13,9 @@ import ixias.security.TokenGenerator
 import ixias.play.api.auth.container.Container
 import ixias.play.api.auth.token.Token
 import ixias.play.api.auth.token.Token.AuthenticityToken
+
+import cats.data.OptionT
+import cats.implicits._
 
 case class AuthTokenContainer @Inject() (
 )(implicit ec: ExecutionContext) extends Container[User.Id] {
@@ -37,30 +39,26 @@ case class AuthTokenContainer @Inject() (
   // トークンのタイムアウトを設定する
   def setTimeout(token: AuthenticityToken, expiry: Duration)
     (implicit request: RequestHeader): Future[Unit] =
-      for {
-        optAuthToken <- AuthTokenRepository.getByToken(token)
-        _            <- optAuthToken match {
-          case Some(token) => AuthTokenRepository.update(token.map(_.copy(expiry = expiry)))
-          case None        => Future.successful(None)
-        }
-      } yield ()
+      (OptionT(AuthTokenRepository.getByToken(token)) semiflatMap { authToken =>
+        for {
+          _ <- AuthTokenRepository.update(authToken.map(_.copy(expiry = expiry)))
+        } yield ()
+      }).getOrElse(())
 
   // トークンからユーザーIDを取得する
   def read(token: AuthenticityToken)
     (implicit request: RequestHeader): Future[Option[Id]] =
       for {
         optAuthToken <- AuthTokenRepository.getByToken(token)
-      } yield optAuthToken.map(authToken => authToken.v.uid)
+      } yield optAuthToken.map(_.v.uid)
 
   // トークンを削除する
   def destroy(token: AuthenticityToken)
     (implicit request: RequestHeader): Future[Unit] =
-      for {
-        optAuthToken <- AuthTokenRepository.getByToken(token)
-        _            <- optAuthToken match {
-          case Some(token) => AuthTokenRepository.remove(token.id)
-          case None        => Future.successful(None)
-        }
-      } yield ()
+      (OptionT(AuthTokenRepository.getByToken(token)) semiflatMap { authToken =>
+        for {
+          _ <- AuthTokenRepository.remove(authToken.id)
+        } yield ()
+      }).getOrElse(())
 }
 
