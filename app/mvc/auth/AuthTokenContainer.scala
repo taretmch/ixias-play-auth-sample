@@ -26,20 +26,26 @@ case class AuthTokenContainer @Inject() (
   // トークンを生成し、ユーザーIDを紐づける
   def open(uid: Id, expiry: Duration)
     (implicit request: RequestHeader): Future[AuthenticityToken] = {
-      // トークンを生成する
-      val token = AuthenticityToken(TokenGenerator().next(TOKEN_LENGTH))
-      // トークンとユーザーIDを紐づける
-      val authToken = AuthToken(uid, token, expiry)
-      for {
-        // トークンのDBへの保存
-        _ <- AuthTokenRepository.add(authToken)
-      } yield token
+      (for {
+        authTokenOpt <- AuthTokenRepository.getByUserId(uid)
+      } yield authTokenOpt) flatMap {
+        case Some(authToken) => Future.successful(authToken.v.token)
+        case None            => {
+          val token     = AuthenticityToken(TokenGenerator().next(TOKEN_LENGTH))
+          val authToken = AuthToken(uid, token, expiry)
+          for {
+            _ <- AuthTokenRepository.add(authToken)
+          } yield token
+        }
+      }
     }
       
   // トークンのタイムアウトを設定する
   def setTimeout(token: AuthenticityToken, expiry: Duration)
     (implicit request: RequestHeader): Future[Unit] =
-      (OptionT(AuthTokenRepository.getByToken(token)) semiflatMap { authToken =>
+      ((for {
+        authToken <- OptionT(AuthTokenRepository.getByToken(token))
+      } yield authToken) semiflatMap { authToken =>
         for {
           _ <- AuthTokenRepository.update(authToken.map(_.copy(expiry = expiry)))
         } yield ()
@@ -55,7 +61,9 @@ case class AuthTokenContainer @Inject() (
   // トークンを削除する
   def destroy(token: AuthenticityToken)
     (implicit request: RequestHeader): Future[Unit] =
-      (OptionT(AuthTokenRepository.getByToken(token)) semiflatMap { authToken =>
+      ((for {
+        authToken <- OptionT(AuthTokenRepository.getByToken(token))
+      } yield authToken) semiflatMap { authToken =>
         for {
           _ <- AuthTokenRepository.remove(authToken.id)
         } yield ()
