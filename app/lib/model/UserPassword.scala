@@ -28,8 +28,12 @@ object UserPassword {
   def hash(password: String): String = PBKDF2.hash(password)
 
   // パスワードをチェックする
-  def verify(input: String, hash: String): Option[Unit] =
-    PBKDF2.compare(input, hash) match {
+  def verify(input: String, hash: String): Boolean =
+    PBKDF2.compare(input, hash)
+
+  // パスワードをチェックする
+  def verifyOption(input: String, hash: String): Option[Unit] =
+    verify(input, hash) match {
       case true  => Some(())
       case false => None
     }

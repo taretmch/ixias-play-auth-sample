@@ -86,17 +86,13 @@ class UserController @Inject()(
       },
       userData => {
         // 1. ユーザーが存在するかどうかを取得する
-        (OptionT(UserRepository.getByEmail(userData.email)) flatMapF {
-          case user => for {
-            passOpt <- UserPasswordRepository.get(user.id)
-          } yield passOpt.map((user, _))
-        } semiflatMap {
         // 2. パスワードを検証する
-          case (user, pass) => for {
-            verified <- Future.successful(UserPassword.verify(userData.password, pass.v.hash))
-          } yield user.id
-        } semiflatMap {
         // 3. トークンを Cookie に付与してホーム画面へリダイレクトする
+        ((for {
+          user <- OptionT(UserRepository.getByEmail(userData.email))
+          pass <- OptionT(UserPasswordRepository.get(user.id))
+          _    <- OptionT(Future.successful(UserPassword.verifyOption(userData.password, pass.v.hash)))
+        } yield user.id) semiflatMap {
           case uid =>
             authProfile.loginSucceeded(uid, { token =>
               Redirect(routes.HomeController.index())
