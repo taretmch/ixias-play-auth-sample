@@ -1,6 +1,6 @@
-# IxiaS Play Authentication Sample
+# ixias-play-auth sample
 
-This project is a seed project which includes implementations of play-authentication with IxiaS.
+This is a seed project using [ixias-play-auth](https://github.com/ixias-net/ixias/tree/develop/framework/ixias-play-auth).
 
 ## Prerequirement
 
@@ -15,7 +15,7 @@ This project is a seed project which includes implementations of play-authentica
 % docker-compose up -d
 ```
 
-### Invoke Play Application
+### Run Play Application
 
 ```sh
 % sbt
@@ -25,4 +25,4 @@ This project is a seed project which includes implementations of play-authentica
 > run
 ```
 
-Then, you can see play application on `localhost:9000`.
+Then, you can see application on `localhost:9000`.
