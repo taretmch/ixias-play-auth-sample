@@ -1,6 +1,6 @@
 @(vv: model.site.ViewValueHome)
 
-@main("vv.title") {
+@main(vv.title) {
   <h1>Welcome @vv.userName to My Blog!</h1>
   <ul>
     @vv.user match {
