@@ -1,0 +1,10 @@
+@*
+ * エラー画面
+ *@
+
+@(vv: model.site.common.ViewValueError)
+@main(vv.title){
+  <h1>@vv.title</h1>
+  <h2>@vv.reason</h2>
+}
+
