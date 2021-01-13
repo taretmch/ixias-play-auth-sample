@@ -13,12 +13,17 @@ case class UserPassword(
   hash:      String,          // パスワード
   updatedAt: LocalDateTime = NOW,
   createdAt: LocalDateTime = NOW
-) extends EntityModel[User.Id]
+) extends EntityModel[User.Id] {
+
+  // パスワードをチェックする
+  def verify(input: String): Boolean =
+    PBKDF2.compare(input, hash)
+}
 
 // コンパニオンオブジェクト
 object UserPassword {
-  def apply(id: User.Id, password: String): UserPassword#WithNoId = {
-    new UserPassword(
+  def build(id: User.Id, password: String): UserPassword#WithNoId = {
+    UserPassword(
       id   = Some(id),
       hash = hash(password)
     ).toWithNoId
@@ -26,15 +31,4 @@ object UserPassword {
 
   // パスワードをハッシュ化する
   def hash(password: String): String = PBKDF2.hash(password)
-
-  // パスワードをチェックする
-  def verify(input: String, hash: String): Boolean =
-    PBKDF2.compare(input, hash)
-
-  // パスワードをチェックする
-  def verifyOption(input: String, hash: String): Option[Unit] =
-    verify(input, hash) match {
-      case true  => Some(())
-      case false => None
-    }
 }

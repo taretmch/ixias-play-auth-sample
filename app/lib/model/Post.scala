@@ -19,14 +19,4 @@ case class Post(
 object Post {
   val  Id = the[Identity[Id]]
   type Id = Long @@ Post
-
-  def apply(uid: User.Id, title: String, body: String, public: Boolean): Post#WithNoId = {
-    new Post(
-      id     = None,
-      uid    = uid,
-      title  = title,
-      body   = body,
-      public = public
-    ).toWithNoId
-  }
 }

@@ -17,11 +17,4 @@ case class User(
 object User {
   val  Id = the[Identity[Id]]
   type Id = Long @@ User
-
-  def apply(name: String, email: String): User#WithNoId =
-    new User(
-      id    = None,
-      name  = name,
-      email = email,
-    ).toWithNoId
 }

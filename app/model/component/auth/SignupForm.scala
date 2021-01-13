@@ -4,8 +4,15 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.data.validation._
 import scala.util.matching.Regex
+import lib.model.{ User, UserPassword }
 
-case class SignupFormData(name: String, email: String, password: String)
+case class SignupFormData(name: String, email: String, password: String) {
+
+  def createUser(): User#WithNoId = User(None, name, email).toWithNoId
+
+  def createPassword(uid: User.Id): UserPassword#WithNoId =
+    UserPassword.build(uid, password)
+}
 
 // アカウント登録用フォーム
 object SignupForm {

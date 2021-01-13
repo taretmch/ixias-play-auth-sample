@@ -52,29 +52,29 @@ class UserController @Inject()(
     signupForm.bindFromRequest.fold(
       formWithErrors => {
         val vv = ViewValueSignup(form = formWithErrors)
-        Future.successful(BadRequest(views.html.auth.Signup(vv)))
+        Future.successful(Left(BadRequest(views.html.auth.Signup(vv))))
       },
-      userData => {
-        val hash = UserPassword.hash(userData.password)
-        val user = User(userData.name, userData.email)
-        UserRepository.getByEmail(user.v.email) flatMap {
-          // email が登録済なら、フォームを再表示する
-          case Some(email) => Future.successful(BadRequest(views.html.auth.Signup(
-            new ViewValueSignup(form = signupForm.withError(errorEmailDuplicated).fill(userData))
+      post => EitherT(
+        for {
+          userOpt <- UserRepository.getByEmail(post.email)
+        } yield userOpt match {
+          case None       => Right(post)
+          case Some(user) => Left(BadRequest(views.html.auth.Signup(
+            new ViewValueSignup(form = signupForm.withError(errorEmailDuplicated).fill(post))
           )))
-          // email が未登録なら、登録処理を実行する
-          case None        => for {
-            // 1. ユーザーを DB に保存する
-            uid1   <- UserRepository.add(user)
-            // 2. ユーザーパスワードを DB に保存する
-            uid2   <- UserPasswordRepository.add(UserPassword(uid1, hash))
-            // 3. トークンを Cookie に付与してホーム画面へリダイレクトする
-            result <- authProfile.loginSucceeded(uid1, { token =>
-              Redirect(routes.HomeController.index())
-            })
-          } yield result
         }
-      })
+      ) semiflatMap {
+        // Email が未登録なら、登録処理を実行する
+        case post => for {
+          uid   <- UserRepository.add(post.createUser)
+          _     <- UserPasswordRepository.add(post.createPassword(uid))
+          // 認証トークンを付与する
+          result <- authProfile.loginSucceeded(uid, { _ =>
+            Redirect(routes.HomeController.index())
+          })
+        } yield result
+      }
+    )
   }
     
   // ログイン
@@ -84,25 +84,25 @@ class UserController @Inject()(
         val vv = ViewValueLogin(form = formWithErrors)
         Future.successful(BadRequest(views.html.auth.Login(vv)))
       },
-      userData => {
+      post => (OptionT {
         // 1. ユーザーが存在するかどうかを取得する
+        UserRepository.getByEmail(post.email)
+      } semiflatMap {
         // 2. パスワードを検証する
+        case user => for {
+          passwordOpt <- UserPasswordRepository.get(user.id)
+            if passwordOpt.exists(_.v.verify(post.password))
+        } yield user.id
+      } semiflatMap {
         // 3. トークンを Cookie に付与してホーム画面へリダイレクトする
-        ((for {
-          user <- OptionT(UserRepository.getByEmail(userData.email))
-          pass <- OptionT(UserPasswordRepository.get(user.id))
-          _    <- OptionT(Future.successful(UserPassword.verifyOption(userData.password, pass.v.hash)))
-        } yield user.id) semiflatMap {
-          case uid =>
-            authProfile.loginSucceeded(uid, { token =>
-              Redirect(routes.HomeController.index())
-            })
-        }).toRight(
-          BadRequest(views.html.auth.Login(ViewValueLogin(
-            form = loginForm.withError(errorLoginEmail).withError(errorLoginPassword).fill(userData)
-          )))
-        ).value
-      }
+        case uid => authProfile.loginSucceeded(uid, { _ =>
+          Redirect(routes.HomeController.index())
+        })
+      }).toRight(
+        BadRequest(views.html.auth.Login(ViewValueLogin(
+          form = loginForm.withError(errorLoginEmail).withError(errorLoginPassword).fill(post)
+        )))
+      )
     )
   }
 
