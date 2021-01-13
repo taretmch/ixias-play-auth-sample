@@ -4,7 +4,7 @@ import lib.model.User
 import lib.persistence.default.UserRepository
 
 import javax.inject._
-import scala.concurrent.duration.Duration
+import java.time.Duration
 import scala.concurrent.{ Future, ExecutionContext }
 
 import play.api.Environment
@@ -28,5 +28,11 @@ case class UserAuthProfile @Inject() (
   // 取得したユーザーIDからユーザーを取得する
   def resolve(id: Id)(implicit rh: RequestHeader): Future[Option[AuthEntity]] =
     UserRepository.get(id)
-}
 
+  // --[ Methods ]--------------------------------------------------------------
+  /**
+   * Resolve timeout of session
+   */
+  def sessionTimeout(implicit request: RequestHeader): Option[Duration] =
+    Some(Duration.ofHours(24L))
+}

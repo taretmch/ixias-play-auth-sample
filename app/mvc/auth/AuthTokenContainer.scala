@@ -6,7 +6,7 @@ import lib.persistence.default.AuthTokenRepository
 import javax.inject._
 import play.api.mvc.RequestHeader
 import scala.concurrent.{ Future, ExecutionContext }
-import scala.concurrent.duration.Duration
+import java.time.Duration
 
 import ixias.model._
 import ixias.security.TokenGenerator
@@ -24,7 +24,7 @@ case class AuthTokenContainer @Inject() (
   val executionContext: ExecutionContext = ec
 
   // トークンを生成し、ユーザーIDを紐づける
-  def open(uid: Id, expiry: Duration)
+  def open(uid: Id, expiry: Option[Duration])
     (implicit request: RequestHeader): Future[AuthenticityToken] = {
       (for {
         authTokenOpt <- AuthTokenRepository.getByUserId(uid)
@@ -32,7 +32,7 @@ case class AuthTokenContainer @Inject() (
         case Some(authToken) => Future.successful(authToken.v.token)
         case None            => {
           val token     = AuthenticityToken(TokenGenerator().next(TOKEN_LENGTH))
-          val authToken = AuthToken(uid, token, expiry)
+          val authToken = AuthToken(None, uid, token, expiry).toWithNoId
           for {
             _ <- AuthTokenRepository.add(authToken)
           } yield token
@@ -41,7 +41,7 @@ case class AuthTokenContainer @Inject() (
     }
       
   // トークンのタイムアウトを設定する
-  def setTimeout(token: AuthenticityToken, expiry: Duration)
+  def setTimeout(token: AuthenticityToken, expiry: Option[Duration])
     (implicit request: RequestHeader): Future[Unit] =
       ((for {
         authToken <- OptionT(AuthTokenRepository.getByToken(token))
