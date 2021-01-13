@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 
 name := """ixias-play-auth-sample"""
-organization := "sample.net.ixias"
+organization := "com.github.taretmch"
 
 version := "1.0-SNAPSHOT"
 
