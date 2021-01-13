@@ -67,7 +67,7 @@ class UserController @Inject()(
         // Email が未登録なら、登録処理を実行する
         case post => for {
           uid   <- UserRepository.add(post.createUser)
-          _     <- UserPasswordRepository.add(post.createPassword(uid))
+          _     <- UserPasswordRepository.insert(post.createPassword(uid))
           // 認証トークンを付与する
           result <- authProfile.loginSucceeded(uid, { _ =>
             Redirect(routes.HomeController.index())

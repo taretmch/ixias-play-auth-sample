@@ -25,10 +25,17 @@ case class UserPasswordRepository[P <: JdbcProfile]()(implicit val driver: P)
   /**
     * Add user data
    */
-  def add(entity: EntityWithNoId): Future[Id] =
-    RunDBAction(UserPasswordTable) { slick =>
-      slick returning slick.map(_.id) += entity.v
-    }
+  def insert(entity: EntityEmbeddedId): Future[Id] =
+    RunDBAction(UserPasswordTable) { slick => {
+      val row = slick.filter(_.id === entity.id)
+      for {
+        entityOpt <- row.result.headOption
+        _         <- entityOpt match {
+          case None    => slick += entity.v
+          case Some(_) => throw new IllegalArgumentException("UserPasswordRepository: Duplicate entity id")
+        }
+      } yield entity.id
+    } }
 
   /**
    * Update user data
@@ -59,5 +66,8 @@ case class UserPasswordRepository[P <: JdbcProfile]()(implicit val driver: P)
         }
       } yield old
     }
-}
 
+  @deprecated("use add: EntityEmbeddedId => Future[Option[Id]]", "1.0.0")
+  def add(entity: EntityWithNoId): Future[Id] =
+    throw new UnsupportedOperationException("Don't use this method")
+}

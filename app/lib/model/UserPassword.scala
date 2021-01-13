@@ -22,12 +22,8 @@ case class UserPassword(
 
 // コンパニオンオブジェクト
 object UserPassword {
-  def build(id: User.Id, password: String): UserPassword#WithNoId = {
-    UserPassword(
-      id   = Some(id),
-      hash = hash(password)
-    ).toWithNoId
-  }
+  def build(id: User.Id, password: String): UserPassword#EmbeddedId =
+    UserPassword(Some(id), hash(password)).toEmbeddedId
 
   // パスワードをハッシュ化する
   def hash(password: String): String = PBKDF2.hash(password)

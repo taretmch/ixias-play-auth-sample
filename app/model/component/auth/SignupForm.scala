@@ -10,7 +10,7 @@ case class SignupFormData(name: String, email: String, password: String) {
 
   def createUser(): User#WithNoId = User(None, name, email).toWithNoId
 
-  def createPassword(uid: User.Id): UserPassword#WithNoId =
+  def createPassword(uid: User.Id): UserPassword#EmbeddedId =
     UserPassword.build(uid, password)
 }
 
