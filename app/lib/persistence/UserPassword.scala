@@ -67,7 +67,7 @@ case class UserPasswordRepository[P <: JdbcProfile]()(implicit val driver: P)
       } yield old
     }
 
-  @deprecated("use add: EntityEmbeddedId => Future[Option[Id]]", "1.0.0")
+  @deprecated("use insert: EntityEmbeddedId => Future[Id]", "1.0.0")
   def add(entity: EntityWithNoId): Future[Id] =
-    throw new UnsupportedOperationException("Don't use this method")
+    throw new UnsupportedOperationException("UserPasswordRepository.add")
 }
